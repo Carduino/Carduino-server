@@ -50,7 +50,7 @@ var MongooseOptions = {
 	}
 };
 
-if (!prodDB) {
+if (prodDB) {
 	MongooseOptions.user = 'Carduino-server'; // a user authorized to access 'carduino' db with ReadWrite permissions
 	MongooseOptions.user = 'carduinopwd';
 }
