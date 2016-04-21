@@ -33,41 +33,30 @@ var prodDB = (process.env.DB != 'local') ? true : false;
 
 
 //----- MONGOOSE ORM FOR MONGO-DB -----//
-var MongooseLocalOptions = {
+var MongooseOptions = {
 	server: {
-		poolSize: 5
+		poolSize: 5,
+		socketOptions: {
+			keepAlive: 1
+		}
 	},
-	replset: {}, //{ rs_name: 'myReplicaSetName' }
+	replset: {
+		socketOptions: {
+			keepAlive: 1
+		}
+	},
 	db: {
 		native_parser: true
 	}
 };
 
-var MongooseProdOptions = {
-	user: 'Carduino-server', // a user authorized to access 'neocreators' db with ReadWrite permissions
-	pass: 'carduinopwd',
-	server: {
-		poolSize: 5
-	},
-	replset: {}, //{ rs_name: 'myReplicaSetName' }
-	db: {
-		native_parser: true
-	}
-};
+if (!prodDB) {
+	MongooseOptions.user = 'Carduino-server'; // a user authorized to access 'carduino' db with ReadWrite permissions
+	MongooseOptions.user = 'carduinopwd';
+}
 
 
-//to solve some keepalive problems
-MongooseLocalOptions.server.socketOptions = MongooseLocalOptions.replset.socketOptions = {
-	keepAlive: 1
-};
-//to solve some keepalive problems
-MongooseProdOptions.server.socketOptions = MongooseProdOptions.replset.socketOptions = {
-	keepAlive: 1
-};
-
-
-if (!prodDB) mongoose.connect('mongodb://localhost/carduino', MongooseLocalOptions);
-else mongoose.connect('mongodb://localhost/carduino', MongooseProdOptions);
+mongoose.connect('mongodb://localhost/carduino', MongooseOptions);
 
 
 
@@ -75,35 +64,18 @@ else mongoose.connect('mongodb://localhost/carduino', MongooseProdOptions);
 
 var User = require('./models/user');
 
+/* CREATE THE INITIAL USER
 var user = new User({
 	username: 'login',
 	password: 'pwd',
 	role: 'admin'
 });
 
-
 user.save(function(err) {
 	if (!err) console.log('Success saving the user!');
 	else console.log(err);
 });
-
-User.find({}, function(err, profile) {
-	console.log(profile);
-	console.log(err);
-});
-
-
-User.findOne({
-	username: 'login'
-}, function(err, profile) {
-	if (!err && profile) console.log(profile);
-	else console.log(err);
-	profile.verifyPassword('pwd', function(err, valid) {
-		if (!err)
-			console.log(valid ? "ValidAsync !!!" : "InvalidAsync"); //=>'ValidAsync'
-	});
-});
-
+*/
 
 function createToken(user, rememberme, callback) {
 	jwt.sign({
