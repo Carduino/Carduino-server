@@ -188,6 +188,13 @@ io.on('connection', function(socket) {
 });
 
 
+
+app.get('/', function(req, res) {
+	res.send('Carduino-server');
+});
+
+
+
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
