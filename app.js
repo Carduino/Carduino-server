@@ -66,7 +66,7 @@ MongooseProdOptions.server.socketOptions = MongooseProdOptions.replset.socketOpt
 };
 
 
-if (!prod) mongoose.connect('mongodb://localhost/carduino', MongooseLocalOptions);
+if (!prodDB) mongoose.connect('mongodb://localhost/carduino', MongooseLocalOptions);
 else mongoose.connect('mongodb://localhost/carduino', MongooseProdOptions);
 
 
