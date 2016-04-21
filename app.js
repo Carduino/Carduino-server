@@ -77,7 +77,8 @@ var User = require('./models/user');
 
 var user = new User({
 	username: 'login',
-	password: 'pwd'
+	password: 'pwd',
+	role: 'admin'
 });
 
 
