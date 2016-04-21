@@ -94,11 +94,11 @@ User.find({}, function(err, profile) {
 
 
 User.findOne({
-	username: 'login4'
+	username: 'login'
 }, function(err, profile) {
-	if (!err) console.log(profile);
+	if (!err && profile) console.log(profile);
 	else console.log(err);
-	profile.verifyPassword('pwd4', function(err, valid) {
+	profile.verifyPassword('pwd', function(err, valid) {
 		if (!err)
 			console.log(valid ? "ValidAsync !!!" : "InvalidAsync"); //=>'ValidAsync'
 	});
