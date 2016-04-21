@@ -1,0 +1,8 @@
+# Ignorer tous les modules npm :
+node_modules/
+
+# Ignorer les fichiers spéciaux :
+npm-debug.log
+
+# Ignorer les DS_Store de MAC OS-X
+.DS_Store
