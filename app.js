@@ -57,11 +57,11 @@ var MongooseProdOptions = {
 
 
 //to solve some keepalive problems
-MongooseLocalOptions.server.socketOptions = MongooseOptions.replset.socketOptions = {
+MongooseLocalOptions.server.socketOptions = MongooseLocalOptions.replset.socketOptions = {
 	keepAlive: 1
 };
 //to solve some keepalive problems
-MongooseProdOptions.server.socketOptions = MongooseOptions.replset.socketOptions = {
+MongooseProdOptions.server.socketOptions = MongooseProdOptions.replset.socketOptions = {
 	keepAlive: 1
 };
 
