@@ -35,9 +35,16 @@ var prodDB = (process.env.DB != 'local') ? true : false;
 //----- MONGOOSE ORM FOR MONGO-DB -----//
 var MongooseOptions = {
 	server: {
-		poolSize: 5
+		poolSize: 5,
+		socketOptions: {
+			keepAlive: 1
+		}
 	},
-	replset: {},
+	replset: {
+		socketOptions: {
+			keepAlive: 1
+		}
+	},
 	db: {
 		native_parser: true
 	}
@@ -45,7 +52,7 @@ var MongooseOptions = {
 
 if (prodDB) {
 	MongooseOptions.user = 'Carduino-server'; // a user authorized to access 'carduino' db with ReadWrite permissions
-	MongooseOptions.user = 'carduinopwd';
+	MongooseOptions.pass = 'carduinopwd';
 }
 
 
@@ -57,7 +64,7 @@ mongoose.connect('mongodb://localhost/carduino', MongooseOptions);
 
 var User = require('./models/user');
 
-// CREATE THE INITIAL USER
+/* CREATE THE INITIAL USER
 var user = new User({
 	username: 'login',
 	password: 'pwd',
@@ -68,7 +75,7 @@ user.save(function(err) {
 	if (!err) console.log('Success saving the user!');
 	else console.log(err);
 });
-
+*/
 
 User.find({}, function(err, user) {
 	console.log(user);
