@@ -74,7 +74,7 @@ else mongoose.connect('mongodb://localhost/carduino', MongooseProdOptions);
 //----- MONGOOSE MODELS/SCHEMAS -----//
 
 var User = require('./models/user');
-/*
+
 var user = new User({
 	username: 'login',
 	password: 'pwd'
@@ -102,7 +102,7 @@ User.findOne({
 			console.log(valid ? "ValidAsync !!!" : "InvalidAsync"); //=>'ValidAsync'
 	});
 });
-*/
+
 
 function createToken(user, rememberme, callback) {
 	jwt.sign({
