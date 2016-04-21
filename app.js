@@ -52,24 +52,12 @@ if (prodDB) {
 mongoose.connect('mongodb://localhost/carduino', MongooseOptions);
 
 
-var user = new User({
-	username: 'login',
-	password: 'pwd',
-	role: 'admin'
-});
-
-
-user.save(function(err) {
-	if (!err) console.log('Success saving the user!');
-	else console.log(err);
-});
-
 
 //----- MONGOOSE MODELS/SCHEMAS -----//
 
 var User = require('./models/user');
 
-/* CREATE THE INITIAL USER
+// CREATE THE INITIAL USER
 var user = new User({
 	username: 'login',
 	password: 'pwd',
@@ -80,7 +68,7 @@ user.save(function(err) {
 	if (!err) console.log('Success saving the user!');
 	else console.log(err);
 });
-*/
+
 
 User.find({}, function(err, user) {
 	console.log(user);
