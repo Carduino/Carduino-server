@@ -28,10 +28,12 @@ jwt.sign({
 
 
 
+var prodDB = (process.env.DB != 'local') ? true : false;
+
+
+
 //----- MONGOOSE ORM FOR MONGO-DB -----//
-var MongooseOptions = {
-	//user: 'carduino', // a user authorized to access 'neocreators' db with ReadWrite permissions
-	//pass: 'carduinopassphrase',
+var MongooseLocalOptions = {
 	server: {
 		poolSize: 5
 	},
@@ -40,12 +42,26 @@ var MongooseOptions = {
 		native_parser: true
 	}
 };
+
+var MongooseProdOptions = {
+	user: 'Carduino-server', // a user authorized to access 'neocreators' db with ReadWrite permissions
+	pass: 'carduinopwd',
+	server: {
+		poolSize: 5
+	},
+	replset: {}, //{ rs_name: 'myReplicaSetName' }
+	db: {
+		native_parser: true
+	}
+};
+
+
 //to solve some keepalive problems
 MongooseOptions.server.socketOptions = MongooseOptions.replset.socketOptions = {
 	keepAlive: 1
 };
-
-mongoose.connect('mongodb://localhost/carduino', MongooseOptions);
+if (!prod) mongoose.connect('mongodb://localhost/carduino', MongooseLocalOptions);
+else mongoose.connect('mongodb://localhost/carduino', MongooseProdOptions);
 
 
 
@@ -53,12 +69,12 @@ mongoose.connect('mongodb://localhost/carduino', MongooseOptions);
 var User = require('./models/user');
 
 var user = new User({
-	username: 'login4',
-	password: 'pwd4'
+	username: 'login',
+	password: 'pwd'
 });
 
 
-/*user.save(function(err) {
+user.save(function(err) {
 	if (!err) console.log('Success saving the user!');
 	else console.log(err);
 });
@@ -79,7 +95,7 @@ User.findOne({
 			console.log(valid ? "ValidAsync !!!" : "InvalidAsync"); //=>'ValidAsync'
 	});
 });
-*/
+
 
 function createToken(user, rememberme, callback) {
 	jwt.sign({
