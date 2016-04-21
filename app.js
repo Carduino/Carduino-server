@@ -57,9 +57,15 @@ var MongooseProdOptions = {
 
 
 //to solve some keepalive problems
-MongooseOptions.server.socketOptions = MongooseOptions.replset.socketOptions = {
+MongooseLocalOptions.server.socketOptions = MongooseOptions.replset.socketOptions = {
 	keepAlive: 1
 };
+//to solve some keepalive problems
+MongooseProdOptions.server.socketOptions = MongooseOptions.replset.socketOptions = {
+	keepAlive: 1
+};
+
+
 if (!prod) mongoose.connect('mongodb://localhost/carduino', MongooseLocalOptions);
 else mongoose.connect('mongodb://localhost/carduino', MongooseProdOptions);
 
