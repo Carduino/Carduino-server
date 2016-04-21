@@ -77,6 +77,11 @@ user.save(function(err) {
 });
 */
 
+User.find({}, function(err, user) {
+	console.log(user);
+});
+
+
 function createToken(user, rememberme, callback) {
 	jwt.sign({
 		//name: user.name
