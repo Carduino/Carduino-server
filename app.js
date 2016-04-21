@@ -35,16 +35,9 @@ var prodDB = (process.env.DB != 'local') ? true : false;
 //----- MONGOOSE ORM FOR MONGO-DB -----//
 var MongooseOptions = {
 	server: {
-		poolSize: 5,
-		socketOptions: {
-			keepAlive: 1
-		}
+		poolSize: 5
 	},
-	replset: {
-		socketOptions: {
-			keepAlive: 1
-		}
-	},
+	replset: {},
 	db: {
 		native_parser: true
 	}
@@ -58,6 +51,18 @@ if (prodDB) {
 
 mongoose.connect('mongodb://localhost/carduino', MongooseOptions);
 
+
+var user = new User({
+	username: 'login',
+	password: 'pwd',
+	role: 'admin'
+});
+
+
+user.save(function(err) {
+	if (!err) console.log('Success saving the user!');
+	else console.log(err);
+});
 
 
 //----- MONGOOSE MODELS/SCHEMAS -----//
