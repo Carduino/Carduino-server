@@ -1,1 +1,1 @@
-!{app.js, , {bin, models, routes}/**}
+!{app.js, {bin, models, routes}/**}

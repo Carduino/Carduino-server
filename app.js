@@ -5,34 +5,18 @@ var app = require('express')(),
 	jwt = require('jsonwebtoken'),
 	socketioJwt = require("socketio-jwt");
 
-
-
 app.use(logger('dev'))
 	.use(bodyParser.json())
 	.use(bodyParser.urlencoded({
 		extended: false
 	}));
 
-
-
-// sign the jwt asynchronously with HMAC using SHA-256 hash algorithm
-jwt.sign({
-	name: 'Vincent'
-}, 'pwd', {
-	algorithm: 'HS256',
-	expiresIn: 180000,
-	issuer: 'Carduino-server'
-}, function(token) {
-	console.log(token);
-});
-
-
-
 var prodDB = (process.env.DB != 'local') ? true : false;
 
 
 
 //----- MONGOOSE ORM FOR MONGO-DB -----//
+
 var MongooseOptions = {
 	server: {
 		poolSize: 5,
@@ -54,7 +38,6 @@ if (prodDB) {
 	MongooseOptions.user = 'Carduino-server'; // a user authorized to access 'carduino' db with ReadWrite permissions
 	MongooseOptions.pass = 'carduinopwd';
 }
-
 
 mongoose.connect('mongodb://localhost/carduino', MongooseOptions);
 
@@ -82,10 +65,12 @@ User.find({}, function(err, user) {
 });
 
 
+
 function createToken(user, rememberme, callback) {
+	// sign the jwt asynchronously with HMAC using SHA-256 hash algorithm
 	jwt.sign({
-		//name: user.name
-		//rememberme: rememberme
+		name: user.name,
+		role: user.role
 	}, 'pwd', {
 		algorithm: 'HS256',
 		expiresIn: rememberme ? 60 * 60 * 24 * 30 : 60,
@@ -111,33 +96,23 @@ function credentialsAuth(credentials, callback) {
 	});
 }
 
+var networkTree = [];
+
 
 
 //----- SOCKET.IO -----//
 app.io = require('socket.io')();
 var io = app.io;
 
+io.on('connect', function() {
+	console.log('!!!connect fired!');
+});
 
 io.on('connection', socketioJwt.authorize({
 	secret: 'pwd',
 	//timeout: 5000, // 15 seconds to send the authentication message
 	required: false
 }));
-
-
-
-io.on('authenticated', function(socket) {
-	//this socket is authenticated, we are good to handle more events from it.
-	console.log('hello! ' + socket.decoded_token.name);
-});
-
-
-
-io.on('connect', function() {
-	console.log('!!!connect fired!');
-});
-
-
 
 io.on('connection', function(socket) {
 	socket.on('credentialsAuth', function(credentials) {
@@ -151,18 +126,120 @@ io.on('connection', function(socket) {
 			} else socket.emit('invalidCredentials');
 		});
 	});
-
-
-
 	socket.on('disconnect', function() {
 		console.log('disconnect fired!');
 	});
 	socket.on('reconnect', function() {
 		console.log('reconnect fired!');
 	});
-	socket.on('beforeAuth', function() {
-		console.log('message avant auth !!!');
-	});
+});
+
+io.on('authenticated', function(socket) {
+	// Join the socket to the appropriate room
+	if (socket.decoded_token.role === 'user' || socket.decoded_token.role === 'admin') socket.join('users');
+	if (socket.decoded_token.role === 'admin') socket.join('admins');
+	if (socket.decoded_token.role === 'hub') socket.join('hubs');
+	console.log('authenticated');
+
+
+
+	//----- COMMUNICATIONS WITH AUTHENTICATED SOCKETS -----//
+
+	// Communications with hubs
+	if (socket.decoded_token.role === 'hub') {
+		// Get the hub name
+		var hubName = socket.decoded_token.name;
+
+		// Receive datas refering to the connection of a hub and the associated sensors
+		socket.on('newHub', function(hub) {
+			// add the new hub and the associated sensors to the network tree
+			networkTree.push(hub);
+			// Format and push the event to thru the users sockets
+			var addNode = {
+				parentNodeName: 'Carduino-server',
+				node: hub
+			};
+			io.to('users').emit('addNode', addNode);
+		});
+
+		// Log the lost of connection with a hub
+		socket.on('disconnect', function() {
+			// Remove hub from the network tree
+			var hubIndex = networkTree.findIndex(function(hub) {
+				return hub.name === hubName;
+			});
+			if (hubIndex > -1) {
+				networkTree.splice(hubIndex, 1);
+			}
+			// Push the event to thru the users sockets
+			io.to('users').emit('removeNode', hubName);
+		});
+
+		// Log a new sensor connection
+		socket.on('newSensor', function(sensor) {
+			// add the sensor to the network tree
+			var hubIndex = networkTree.findIndex(function(hub) {
+				return hub.name === hubName;
+			});
+			if (hubIndex > -1) {
+				networkTree[hubIndex].children.push(sensor);
+			}
+
+			// Format and push the event to thru the users sockets
+			var addNode = {
+				parentNodeName: hubName,
+				node: sensor
+			};
+			io.to('users').emit('addNode', addNode);
+		});
+
+		// Log the lost of connection with a sensor
+		socket.on('sensorLost', function(sensorName) {
+			// remove the sensor from the network tree and push the event thru the users sockets
+			var hubIndex = networkTree.findIndex(function(hub) {
+				return hub.name === hubName;
+			});
+			if (hubIndex > -1) {
+				var sensorIndex = networkTree[hubIndex].children.findIndex(function(sensor) {
+					return sensor.name === sensorName;
+				});
+				if (sensorIndex > -1) {
+					networkTree[hubIndex].children.splice(hubIndex, 1);
+				}
+			}
+			io.to('users').emit('removeNode', SensorName);
+		});
+
+		// Receive datas of each sensor connected to the emiting hub
+		socket.on('sensorsDatas', function(sensorsDatas) {
+			// add datas to the database and push it to the client
+			// ...
+			console.log(sensorsDatas);
+			io.to('users').emit('sensorsDatas', sensorsDatas);
+		});
+	}
+
+	// Communications with users
+	else {
+		socket.emit('refreshInterface', {
+			networkTree: networkTree
+				// ... À compléter
+				// ...
+				// ...
+		});
+
+		// ... À compléter
+		// ...
+		// ...
+
+		// Communication with admin users
+		if (socket.decoded_token.role === 'admin') {
+			// ... À compléter
+			// ...
+			// ...
+		}
+	}
+
 });
 
 
