@@ -11,7 +11,7 @@ var app = require('express')(),
 var hubMessage = chalk.blue,
 	sensorMessage = chalk.yellow,
 	usersMessage = chalk.green,
-	dataMessage = chalK.magenta.bold;
+	dataMessage = chalk.magenta.bold;
 
 app.use(logger('dev'))
 	.use(bodyParser.json())
