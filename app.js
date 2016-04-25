@@ -215,7 +215,8 @@ io.on('authenticated', function(socket) {
 			// add datas to the database and push it to the client
 			// ...
 			console.log(sensorsDatas);
-			io.to('users').emit('sensorsDatas', sensorsDatas);
+			//io.to('users').emit('sensorsDatas', sensorsDatas);
+			if (sensorsDatas[0]) io.to('users').emit('sensorData', sensorsDatas);
 		});
 	}
 
