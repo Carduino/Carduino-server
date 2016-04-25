@@ -12,7 +12,7 @@ app.use(logger('dev'))
 	}));
 
 var prodDB = (process.env.DB != 'local') ? true : false;
-
+var networkTree = [];
 
 
 //----- MONGOOSE ORM FOR MONGO-DB -----//
@@ -96,8 +96,6 @@ function credentialsAuth(credentials, callback) {
 	});
 }
 
-var networkTree = [];
-
 
 
 //----- SOCKET.IO -----//
@@ -140,7 +138,7 @@ io.on('authenticated', function(socket) {
 	if (socket.decoded_token.role === 'user' || socket.decoded_token.role === 'admin') socket.join('users');
 	if (socket.decoded_token.role === 'admin') socket.join('admins');
 	if (socket.decoded_token.role === 'hub') socket.join('hubs');
-	console.log('authenticated');
+	console.log('New ' + socket.decoded_token.role + ' authenticated : ' + socket.decoded_token.name);
 
 
 
@@ -153,80 +151,105 @@ io.on('authenticated', function(socket) {
 
 		// Receive datas refering to the connection of a hub and the associated sensors
 		socket.on('newHub', function(hub) {
-			console.log('new hub !');
-			// add the new hub and the associated sensors to the network tree
-			networkTree.push(hub);
+			console.log('new hub received : ' + hubName);
+			console.log(hub);
+			console.log('');
+
+			// add or update the new hub and the associated sensors to the network tree
+			var hubIndex = networkTree.findIndex(function(hubToTest) {
+				return hubToTest.name === hubName;
+			});
+			if (hubIndex < 0) networkTree.push(hub); // If new in the network tree
+			else networkTree[hubIndex] = hub; // If already present in the network tree.
+
 			// Format and push the event to thru the users sockets
+			/*
 			var addNode = {
 				parentNodeName: 'Carduino-server',
 				node: hub
 			};
 			io.to('users').emit('addNode', addNode);
+			*/
 		});
 
 		// Log the lost of connection with a hub
 		socket.on('disconnect', function() {
-			console.log('hub lost !');
-			// Remove hub from the network tree
-			var hubIndex = networkTree.findIndex(function(hub) {
-				return hub.name === hubName;
+			console.log('hub lost : ' + hubName);
+			console.log('');
+
+			// Remove hub from the network tree if it is present
+			var hubIndex = networkTree.findIndex(function(hubToTest) {
+				return hubToTest.name === hubName;
 			});
 			if (hubIndex > -1) {
 				networkTree.splice(hubIndex, 1);
 			}
 			// Push the event to thru the users sockets
-			io.to('users').emit('removeNode', hubName);
+			//io.to('users').emit('removeNode', hubName);
 		});
 
 		// Log a new sensor connection
 		socket.on('newSensor', function(sensor) {
-			console.log('new sensor !');
-			// add the sensor to the network tree
-			var hubIndex = networkTree.findIndex(function(hub) {
-				return hub.name === hubName;
+			console.log('New sensor : ' + sensor.name);
+			console.log(sensor);
+			console.log('');
+
+			// add or update the sensor to the network tree
+			var hubIndex = networkTree.findIndex(function(hubToTest) {
+				return hubToTest.name === hubName;
 			});
 			if (hubIndex > -1) {
-				networkTree[hubIndex].children.push(sensor);
+				var sensorIndex = networkTree.findIndex(function(sensorToTest) {
+					return sensorToTest.name === sensor.name;
+				});
+				if (sensorIndex < 0) {
+					networkTree[hubIndex].children.push(sensor);
+				} else {
+					networkTree[hubIndex].children[sensorIndex] = sensor;
+				}
 			}
 
 			// Format and push the event to thru the users sockets
+			/*
 			var addNode = {
 				parentNodeName: hubName,
 				node: sensor
 			};
 			io.to('users').emit('addNode', addNode);
+			*/
 		});
 
 		// Log the lost of connection with a sensor
 		socket.on('sensorLost', function(sensorName) {
-			console.log('sensor lost !');
+			console.log('sensor lost : ' + sensorName);
 			// remove the sensor from the network tree and push the event thru the users sockets
 			var hubIndex = networkTree.findIndex(function(hub) {
 				return hub.name === hubName;
 			});
 			if (hubIndex > -1) {
-				var sensorIndex = networkTree[hubIndex].children.findIndex(function(sensor) {
-					return sensor.name === sensorName;
+				var sensorIndex = networkTree[hubIndex].children.findIndex(function(sensorToTest) {
+					return sensorToTest.name === sensorName;
 				});
 				if (sensorIndex > -1) {
 					networkTree[hubIndex].children.splice(hubIndex, 1);
 				}
 			}
-			io.to('users').emit('removeNode', sensorName);
+			//io.to('users').emit('removeNode', sensorName);
 		});
 
 		// Receive datas of each sensor connected to the emiting hub
 		socket.on('sensorData', function(sensorData) {
 			// add datas to the database and push it to the client
 			// ...
-			console.log(sensorData);
+			//console.log(sensorData);
 			//io.to('users').emit('sensorsDatas', sensorsDatas);
-			io.to('users').emit('sensorData', sensorData);
+			//io.to('users').emit('sensorData', sensorData);
 		});
 	}
 
 	// Communications with users
 	else {
+		/*
 		socket.emit('refreshInterface', {
 			networkTree: networkTree
 				// ... À compléter
@@ -244,6 +267,7 @@ io.on('authenticated', function(socket) {
 			// ...
 			// ...
 		}
+		*/
 	}
 
 });
