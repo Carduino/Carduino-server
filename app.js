@@ -106,7 +106,7 @@ var io = app.io;
 
 
 
-io.on('connect', function() {
+io.on('connect', function(socket) {
 	console.log('!!!connect fired!');
 	socket.on('disconnect', function() {
 		console.log('disconnect fired eeeeee!!!!!!!');
