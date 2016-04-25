@@ -87,5 +87,6 @@ function onListening() {
 
 app.io.attach(server, {
 	'pingInterval': 2,
+	'pingTimeout': 4
 
 });
