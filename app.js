@@ -130,6 +130,9 @@ io.on('connection', function(socket) {
 	socket.on('reconnect', function() {
 		console.log('reconnect fired!');
 	});
+	socket.on('disconnect', function() {
+		console.log('FYUUUUUUU');
+	});
 });
 
 io.on('authenticated', function(socket) {
