@@ -125,11 +125,11 @@ io.on('connection', function(socket) {
 		console.log(userMessage('New authentication with credentials attempt :'));
 		console.log(userMessage('\tUsername : ' + credentials.username));
 		console.log(userMessage('\tPassword : ' + credentials.password));
-		console.log(userMessage('\tRememberme : ' + credentials.rememberme));
+		console.log(userMessage('\tRememberme : ' + credentials.rememberme + '\n'));
 		credentialsAuth(credentials, function(err, token) {
 			if (!err && token) {
 				socket.emit('validCredentials', token);
-				console.log(userMessage('\nToken emmited for ' + credentials.username + ' : \n\t\t' + token + '\n'));
+				console.log(userMessage('\nToken emmited for ' + credentials.username + ' : \n\t' + token + '\n'));
 			} else socket.emit('invalidCredentials');
 		});
 	});
@@ -144,16 +144,11 @@ io.on('connection', function(socket) {
 
 io.on('authenticated', function(socket) {
 	// Join the socket to the appropriate room
-
-	if (socket.decoded_token.role === 'admin') socket.join('admins');
-	if (socket.decoded_token.role === 'user' || socket.decoded_token.role === 'admin') {
-		socket.join('users');
-		console.log(userMessage('New user authenticated with a token : \n\t' + socket.decoded_token.username + '\n'));
-	}
-	if (socket.decoded_token.role === 'hub') {
-		socket.join('hubs');
-		console.log(hubMessage('New hub authenticated : \n\t' + socket.decoded_token.name + '\n'));
-	}
+	var role = socket.decoded_token.role;
+	if (role === 'user' || role === 'admin') socket.join('users');
+	if (role === 'admin') socket.join('admins');
+	if (role === 'hub') socket.join('hubs');
+	console.log(userMessage('New ' + role + ' authenticated with the token : \n\t' + socket.decoded_token.name + '\n'));
 
 
 
@@ -166,7 +161,7 @@ io.on('authenticated', function(socket) {
 
 		// Receive datas refering to the connection of a hub and the associated sensors
 		socket.on('newHub', function(hub) {
-			console.log(hubMessage('new hub received : ' + hubName + '\n\t' + hub + '\n'));
+			console.log(hubMessage('new hub received : ' + hubName + '\n\t' + JSON.stringify(hub, null, 4) + '\n'));
 
 			// add or update the new hub and the associated sensors to the network tree
 			var hubIndex = networkTree.findIndex(function(hubToTest) {
@@ -202,7 +197,7 @@ io.on('authenticated', function(socket) {
 
 		// Log a new sensor connection
 		socket.on('newSensor', function(sensor) {
-			console.log(sensorMessage('New sensor : ' + sensor.name + '\n\t' + sensor + '\n'));
+			console.log(sensorMessage('New sensor : ' + sensor.name + '\n\t' + JSON.stringify(sensor, null, 4) + '\n'));
 
 			// add or update the sensor to the network tree
 			var hubIndex = networkTree.findIndex(function(hubToTest) {
