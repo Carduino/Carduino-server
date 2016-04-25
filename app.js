@@ -152,6 +152,7 @@ io.on('authenticated', function(socket) {
 
 		// Receive datas refering to the connection of a hub and the associated sensors
 		socket.on('newHub', function(hub) {
+			console.log('new hub !');
 			// add the new hub and the associated sensors to the network tree
 			networkTree.push(hub);
 			// Format and push the event to thru the users sockets
@@ -164,6 +165,7 @@ io.on('authenticated', function(socket) {
 
 		// Log the lost of connection with a hub
 		socket.on('disconnect', function() {
+			console.log('hub lost !');
 			// Remove hub from the network tree
 			var hubIndex = networkTree.findIndex(function(hub) {
 				return hub.name === hubName;
@@ -177,6 +179,7 @@ io.on('authenticated', function(socket) {
 
 		// Log a new sensor connection
 		socket.on('newSensor', function(sensor) {
+			console.log('new sensor !');
 			// add the sensor to the network tree
 			var hubIndex = networkTree.findIndex(function(hub) {
 				return hub.name === hubName;
@@ -195,6 +198,7 @@ io.on('authenticated', function(socket) {
 
 		// Log the lost of connection with a sensor
 		socket.on('sensorLost', function(sensorName) {
+			console.log('sensor lost !');
 			// remove the sensor from the network tree and push the event thru the users sockets
 			var hubIndex = networkTree.findIndex(function(hub) {
 				return hub.name === hubName;
@@ -211,12 +215,12 @@ io.on('authenticated', function(socket) {
 		});
 
 		// Receive datas of each sensor connected to the emiting hub
-		socket.on('sensorsDatas', function(sensorsDatas) {
+		socket.on('sensorData', function(sensorData) {
 			// add datas to the database and push it to the client
 			// ...
-			console.log(sensorsDatas);
+			console.log(sensorData);
 			//io.to('users').emit('sensorsDatas', sensorsDatas);
-			io.to('users').emit('sensorData', sensorsDatas);
+			io.to('users').emit('sensorData', sensorData);
 		});
 	}
 
