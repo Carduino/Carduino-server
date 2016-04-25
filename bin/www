@@ -85,7 +85,4 @@ function onListening() {
 	debug('Listening on ' + bind);
 }
 
-app.io.attach(server, {
-	'transports': ['websocket'],
-	'pingInterval': 20
-});
+app.io.attach(server);
