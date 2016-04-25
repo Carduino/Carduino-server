@@ -77,7 +77,7 @@ User.find({}, function(err, user) {
 function createToken(user, rememberme, callback) {
 	// sign the jwt asynchronously with HMAC using SHA-256 hash algorithm
 	jwt.sign({
-		name: user.name,
+		name: user.username,
 		role: user.role
 	}, 'pwd', {
 		algorithm: 'HS256',
@@ -129,7 +129,7 @@ io.on('connection', function(socket) {
 		credentialsAuth(credentials, function(err, token) {
 			if (!err && token) {
 				socket.emit('validCredentials', token);
-				console.log('Token emmited for ' + credentials.username + ' : \n\t' + token + '\n');
+				console.log(userMessage('\nToken emmited for ' + credentials.username + ' : \n\t\t' + token + '\n'));
 			} else socket.emit('invalidCredentials');
 		});
 	});
