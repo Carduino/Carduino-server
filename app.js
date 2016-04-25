@@ -138,7 +138,7 @@ io.on('authenticated', function(socket) {
 	if (socket.decoded_token.role === 'user' || socket.decoded_token.role === 'admin') socket.join('users');
 	if (socket.decoded_token.role === 'admin') socket.join('admins');
 	if (socket.decoded_token.role === 'hub') socket.join('hubs');
-	console.log('New ' + socket.decoded_token.role + ' authenticated : ' + socket.decoded_token.name);
+	console.log('New ' + socket.decoded_token.role + ' authenticated : ' + socket.decoded_token.name || socket.decoded_token.username);
 
 
 
