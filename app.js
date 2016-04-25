@@ -211,7 +211,7 @@ io.on('authenticated', function(socket) {
 					networkTree[hubIndex].children.splice(hubIndex, 1);
 				}
 			}
-			io.to('users').emit('removeNode', SensorName);
+			io.to('users').emit('removeNode', sensorName);
 		});
 
 		// Receive datas of each sensor connected to the emiting hub
