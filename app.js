@@ -102,8 +102,9 @@ var networkTree = [];
 
 //----- SOCKET.IO -----//
 app.io = require('socket.io')();
+app.io.set('transports', ['websocket']);
 var io = app.io;
-io.set('transports', ['websocket']);
+
 
 
 io.on('connect', function() {
