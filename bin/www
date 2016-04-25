@@ -85,4 +85,6 @@ function onListening() {
 	debug('Listening on ' + bind);
 }
 
-app.io.attach(server);
+app.io.attach(server, {
+	'pingInterval': 45000
+});
