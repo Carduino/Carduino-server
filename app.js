@@ -122,14 +122,14 @@ io.on('connection', socketioJwt.authorize({
 
 io.on('connection', function(socket) {
 	socket.on('credentialsAuth', function(credentials) {
-		console.log(userMessage('New authentication with credentials attempt :'));
+		console.log(userMessage('New attempt of authentication with credentials :'));
 		console.log(userMessage('\tUsername : ' + credentials.username));
 		console.log(userMessage('\tPassword : ' + credentials.password));
 		console.log(userMessage('\tRememberme : ' + credentials.rememberme + '\n'));
 		credentialsAuth(credentials, function(err, token) {
 			if (!err && token) {
 				socket.emit('validCredentials', token);
-				console.log(userMessage('\nToken emmited for ' + credentials.username + ' : \n\t' + token + '\n'));
+				console.log(userMessage('\nToken emmited to authenticate ' + credentials.username + ' : \n\t' + token + '\n'));
 			} else socket.emit('invalidCredentials');
 		});
 	});
@@ -145,10 +145,15 @@ io.on('connection', function(socket) {
 io.on('authenticated', function(socket) {
 	// Join the socket to the appropriate room
 	var role = socket.decoded_token.role;
-	if (role === 'user' || role === 'admin') socket.join('users');
-	if (role === 'admin') socket.join('admins');
-	if (role === 'hub') socket.join('hubs');
-	console.log(userMessage('New ' + role + ' authenticated with the token : \n\t' + socket.decoded_token.name + '\n'));
+
+	if (role === 'user' || role === 'admin') {
+		socket.join('users');
+		if (role === 'admin') socket.join('admins');
+		console.log(userMessage('New ' + role + ' authenticated: \n\t' + socket.decoded_token.name + '\n'));
+	} else if (role === 'hub') {
+		socket.join('hubs');
+		console.log(hubMessage('New hub authenticated : \n\t' + socket.decoded_token.name + '\n'));
+	}
 
 
 
@@ -246,9 +251,7 @@ io.on('authenticated', function(socket) {
 		socket.on('sensorData', function(sensorData) {
 			// add datas to the database and push it to the client
 			// ...
-			//console.log(sensorData);
-			//io.to('users').emit('sensorsDatas', sensorsDatas);
-			//io.to('users').emit('sensorData', sensorData);
+			io.to('users').emit('sensorData', sensorData);
 		});
 	}
 
