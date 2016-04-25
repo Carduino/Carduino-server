@@ -86,6 +86,5 @@ function onListening() {
 }
 
 app.io.attach(server, {
-	'heartbeatTimeout': 30,
-	'heartbeatInterval': 10
+	'transports': ['websocket']
 });
