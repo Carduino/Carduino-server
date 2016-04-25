@@ -126,20 +126,7 @@ io.on('connection', function(socket) {
 			} else socket.emit('invalidCredentials');
 		});
 	});
-	socket.on('disconnect', function() {
-		console.log('disconnect fired !!!!!!!');
-		if (socket.decoded_token.role === 'hub') {
-			// Remove hub from the network tree
-			var hubIndex = networkTree.findIndex(function(hub) {
-				return hub.name === socket.decoded_token.name;
-			});
-			if (hubIndex > -1) {
-				networkTree.splice(hubIndex, 1);
-			}
-			// Push the event to thru the users sockets
-			io.to('users').emit('removeNode', socket.decoded_token.name);
-		}
-	});
+
 	socket.on('reconnect', function() {
 		console.log('reconnect fired!');
 	});
