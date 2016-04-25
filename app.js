@@ -216,7 +216,7 @@ io.on('authenticated', function(socket) {
 			// ...
 			console.log(sensorsDatas);
 			//io.to('users').emit('sensorsDatas', sensorsDatas);
-			if (sensorsDatas[0]) io.to('users').emit('sensorData', sensorsDatas);
+			if (sensorsDatas['Name 1']) io.to('users').emit('sensorData', sensorsDatas['Name 1']);
 		});
 	}
 
