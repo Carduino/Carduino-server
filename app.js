@@ -3,7 +3,15 @@ var app = require('express')(),
 	bodyParser = require('body-parser'),
 	mongoose = require('mongoose'),
 	jwt = require('jsonwebtoken'),
-	socketioJwt = require("socketio-jwt");
+	socketioJwt = require("socketio-jwt"),
+	chalk = require('chalk');
+
+
+
+var hubMessage = chalk.blue,
+	sensorMessage = chalk.yellow,
+	usersMessage = chalk.green,
+	dataMessage = chalK.magenta.bold;
 
 app.use(logger('dev'))
 	.use(bodyParser.json())
@@ -114,31 +122,38 @@ io.on('connection', socketioJwt.authorize({
 
 io.on('connection', function(socket) {
 	socket.on('credentialsAuth', function(credentials) {
-		console.log(credentials.username);
-		console.log(credentials.password);
-		console.log(credentials.rememberme);
+		console.log(userMessage('New authentication with credentials attempt :'));
+		console.log(userMessage('\tUsername : ' + credentials.username));
+		console.log(userMessage('\tPassword : ' + credentials.password));
+		console.log(userMessage('\tRememberme : ' + credentials.rememberme));
 		credentialsAuth(credentials, function(err, token) {
 			if (!err && token) {
 				socket.emit('validCredentials', token);
-				console.log(token);
+				console.log('Token emmited for ' + credentials.username + ' : \n\t' + token + '\n');
 			} else socket.emit('invalidCredentials');
 		});
 	});
 
 	socket.on('reconnect', function() {
-		console.log('reconnect fired!');
+		console.log('reconnect fired! \n');
 	});
 	socket.on('disconnect', function() {
-		console.log('FYUUUUUUU');
+		console.log('FYUUUUUUU \n');
 	});
 });
 
 io.on('authenticated', function(socket) {
 	// Join the socket to the appropriate room
-	if (socket.decoded_token.role === 'user' || socket.decoded_token.role === 'admin') socket.join('users');
+
 	if (socket.decoded_token.role === 'admin') socket.join('admins');
-	if (socket.decoded_token.role === 'hub') socket.join('hubs');
-	console.log('New ' + socket.decoded_token.role + ' authenticated : ' + socket.decoded_token.name || socket.decoded_token.username);
+	if (socket.decoded_token.role === 'user' || socket.decoded_token.role === 'admin') {
+		socket.join('users');
+		console.log(userMessage('New user authenticated with a token : \n\t' + socket.decoded_token.username + '\n'));
+	}
+	if (socket.decoded_token.role === 'hub') {
+		socket.join('hubs');
+		console.log(hubMessage('New hub authenticated : \n\t' + socket.decoded_token.name + '\n'));
+	}
 
 
 
@@ -151,9 +166,7 @@ io.on('authenticated', function(socket) {
 
 		// Receive datas refering to the connection of a hub and the associated sensors
 		socket.on('newHub', function(hub) {
-			console.log('new hub received : ' + hubName);
-			console.log(hub);
-			console.log('');
+			console.log(hubMessage('new hub received : ' + hubName + '\n\t' + hub + '\n'));
 
 			// add or update the new hub and the associated sensors to the network tree
 			var hubIndex = networkTree.findIndex(function(hubToTest) {
@@ -174,8 +187,7 @@ io.on('authenticated', function(socket) {
 
 		// Log the lost of connection with a hub
 		socket.on('disconnect', function() {
-			console.log('hub lost : ' + hubName);
-			console.log('');
+			console.log(hubMessage('hub lost : ' + hubName + '\n'));
 
 			// Remove hub from the network tree if it is present
 			var hubIndex = networkTree.findIndex(function(hubToTest) {
@@ -190,9 +202,7 @@ io.on('authenticated', function(socket) {
 
 		// Log a new sensor connection
 		socket.on('newSensor', function(sensor) {
-			console.log('New sensor : ' + sensor.name);
-			console.log(sensor);
-			console.log('');
+			console.log(sensorMessage('New sensor : ' + sensor.name + '\n\t' + sensor + '\n'));
 
 			// add or update the sensor to the network tree
 			var hubIndex = networkTree.findIndex(function(hubToTest) {
@@ -221,7 +231,7 @@ io.on('authenticated', function(socket) {
 
 		// Log the lost of connection with a sensor
 		socket.on('sensorLost', function(sensorName) {
-			console.log('sensor lost : ' + sensorName);
+			console.log(sensorMessage('sensor lost : ' + sensorName + '\n'));
 			// remove the sensor from the network tree and push the event thru the users sockets
 			var hubIndex = networkTree.findIndex(function(hub) {
 				return hub.name === hubName;
