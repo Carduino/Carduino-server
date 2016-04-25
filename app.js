@@ -10,7 +10,7 @@ var app = require('express')(),
 
 var hubMessage = chalk.blue,
 	sensorMessage = chalk.yellow,
-	usersMessage = chalk.green,
+	userMessage = chalk.green,
 	dataMessage = chalk.magenta.bold;
 
 app.use(logger('dev'))
