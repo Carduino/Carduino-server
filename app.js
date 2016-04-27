@@ -176,13 +176,11 @@ io.on('authenticated', function(socket) {
 			else networkTree[hubIndex] = hub; // If already present in the network tree.
 
 			// Format and push the event to thru the users sockets
-			/*
 			var addNode = {
 				parentNodeName: 'Carduino-server',
 				node: hub
 			};
 			io.to('users').emit('addNode', addNode);
-			*/
 		});
 
 		// Log the lost of connection with a hub
@@ -196,8 +194,9 @@ io.on('authenticated', function(socket) {
 			if (hubIndex > -1) {
 				networkTree.splice(hubIndex, 1);
 			}
+
 			// Push the event to thru the users sockets
-			//io.to('users').emit('removeNode', hubName);
+			io.to('users').emit('removeNode', hubName);
 		});
 
 		// Log a new sensor connection
@@ -220,13 +219,11 @@ io.on('authenticated', function(socket) {
 			}
 
 			// Format and push the event to thru the users sockets
-			/*
 			var addNode = {
 				parentNodeName: hubName,
 				node: sensor
 			};
 			io.to('users').emit('addNode', addNode);
-			*/
 		});
 
 		// Log the lost of connection with a sensor
@@ -244,7 +241,7 @@ io.on('authenticated', function(socket) {
 					networkTree[hubIndex].children.splice(hubIndex, 1);
 				}
 			}
-			//io.to('users').emit('removeNode', sensorName);
+			io.to('users').emit('removeNode', sensorName);
 		});
 
 		// Receive datas of each sensor connected to the emiting hub
