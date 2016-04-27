@@ -254,7 +254,6 @@ io.on('authenticated', function(socket) {
 
 	// Communications with users
 	else {
-		/*
 		socket.emit('refreshInterface', {
 			networkTree: networkTree
 				// ... À compléter
@@ -272,7 +271,6 @@ io.on('authenticated', function(socket) {
 			// ...
 			// ...
 		}
-		*/
 	}
 
 });
