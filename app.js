@@ -67,10 +67,11 @@ user.save(function(err) {
 	else console.log(err);
 });
 */
-
+/*
 User.find({}, function(err, user) {
 	console.log(user);
 });
+*/
 
 
 
@@ -111,7 +112,7 @@ app.io = require('socket.io')();
 var io = app.io;
 
 io.on('connect', function() {
-	console.log('!!!connect fired!');
+	//console.log('!!!connect fired!');
 });
 
 io.on('connection', socketioJwt.authorize({
@@ -138,7 +139,7 @@ io.on('connection', function(socket) {
 		console.log('reconnect fired! \n');
 	});
 	socket.on('disconnect', function() {
-		console.log('FYUUUUUUU \n');
+		//console.log('FYUUUUUUU \n');
 	});
 });
 
